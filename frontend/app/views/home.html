@@ -1,0 +1,27 @@
+<div ng-include="'./app/views/common/download.html'"></div>
+<div class="container-fluid" ng-controller="homeCtrl" ng-init="getFiles()">
+	{{ msg }}
+
+	<div class="table-responsive">
+		<table class="table">
+			<tbody>
+				<tr ng-repeat="file in files">
+					<td>
+						<a ng-if="file.is_dir == true" href="/#!/?p={{ parent+file.name }}">{{ file.name }}</a>
+	  					<a ng-if="file.is_dir == false">{{ file.name }}</a>
+					</td>
+					<td>
+						{{ file.type }}
+					</td>
+					<td>
+						{{ (file.size/(1024*1024)).toFixed(2)+" MB" }}
+					</td>
+					<td>
+						<button class="btn btn-sm btn-danger">D</button>
+						<button class="btn btn-sm btn-primary">M</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

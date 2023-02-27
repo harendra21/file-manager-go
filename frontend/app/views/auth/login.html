@@ -1,0 +1,24 @@
+<div class="container mt-5" ng-controller="authCtrl">
+  <div class="row d-flex justify-content-center">
+    <div class="col-md-6">
+      <div class="card px-5 py-5">
+        <div class="text-center d-flex flex-column mb-5"> <span class="text-center fs-1">Login</span></div>
+        <div class="form-data">
+          <div class="forms-inputs mb-4"> <span>Email or Username</span>
+            <input autocomplete="off" type="text" class="form-control" ng-model="login.username">
+            <div class="invalid-feedback">A valid email is required!</div>
+          </div>
+          <div class="forms-inputs mb-4"> <span>Password</span>
+            <input autocomplete="off" type="password" class="form-control" ng-model="login.password">
+            <div class="invalid-feedback">Password must be 8 character!</div>
+          </div>
+          <div class="mb-3"> <button class="btn btn-dark w-100" ng-click="login(login)">Login</button></div>
+        </div>
+        <div class="col-xs-12 text-center">
+          <div><b>OR</b></div>
+          <div>Don't have an account <a href="#!/register">Click Here</a> to register</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

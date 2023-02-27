@@ -1,0 +1,57 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "beego Test API",
+        "description": "beego has a very cool tools to autogenerate documents for your API\n",
+        "version": "1.0.0",
+        "termsOfService": "http://beego.me/",
+        "contact": {
+            "email": "astaxie@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "basePath": "/api/v1",
+    "paths": null,
+    "definitions": {
+        "models.Site": {
+            "title": "Site",
+            "type": "object",
+            "properties": {
+                "CreatedAt": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Domain": {
+                    "type": "string"
+                },
+                "Id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Status": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "UpdatedAt": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "WpDatabase": {
+                    "type": "string"
+                },
+                "WpEmail": {
+                    "type": "string"
+                },
+                "WpPassword": {
+                    "type": "string"
+                },
+                "WpUserName": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,27 @@
+version: '3'
+services:
+  apache:
+    build:
+      dockerfile: frontend.Dockerfile
+    container_name: frontend
+    restart: always
+    ports:
+      - "8082:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+      - ./frontend:/var/www/html
+  app:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: backend
+    restart: always
+    environment:
+      API_SERVER_ADDR: ":8080"
+    ports:
+      - "8083:8080"
+    volumes:
+      - ./golang:/goapp
+      - ./data:/goapp/data

@@ -1,0 +1,39 @@
+<div class="container mt-5" ng-controller="siteCtrl">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-6">
+            <div class="card px-5 py-5">
+              <div class="text-center d-flex flex-column mb-5"> <span class="text-center fs-1">Add a new website</span> </div>
+                <div class="form-data">
+                    <form name="form">
+                      <div class="forms-inputs mb-4"> 
+                        <span>Site Title</span>
+                        <input autocomplete="off" type="text" class="form-control" ng-model="site.title" name="title" required>
+                        <small class="form-error" ng-show="form.title.$touched && form.title.$invalid">This field is not valid.</small>
+                      </div>
+                      <div class="forms-inputs mb-4"> 
+                        <span>Subdomain</span>
+                        <input autocomplete="off" type="text" class="form-control" ng-model="site.domain" name="domain" required>
+                        <small class="form-error" ng-show="form.domain.$touched && form.domain.$invalid">This field is not valid.</small>
+                      </div>
+                      <div class="forms-inputs mb-4"> 
+                        <span>WP Username</span>
+                        <input autocomplete="off" type="text" class="form-control" ng-model="site.wpUsername" name="wpUsername" required>
+                        <small class="form-error" ng-show="form.wpUsername.$touched && form.wpUsername.$invalid">This field is not valid.</small>
+                      </div>
+                      <div class="forms-inputs mb-4">
+                        <span>WP Password</span>
+                        <input autocomplete="off" type="password" class="form-control" ng-model="site.wpPassword" name="wpPassword" required>
+                        <small class="form-error" ng-show="form.wpPassword.$touched && form.wpPassword.$invalid">This field is not valid.</small>
+                      </div>
+                      <div class="forms-inputs mb-4">
+                        <span>WP Email</span>
+                        <input autocomplete="off" type="email" class="form-control" ng-model="site.wpEmail" name="wpEmail" required>
+                        <small class="form-error" ng-show="form.wpEmail.$touched && form.wpEmail.$invalid">This field is not valid.</small>
+                      </div>
+                      <div class="mb-3"><button class="btn btn-dark w-100" ng-click="addSite(site)" ng-disabled="form.$invalid">Create</button> </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
