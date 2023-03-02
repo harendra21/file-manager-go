@@ -1,5 +1,7 @@
 var app = angular.module("mainApp",["ngRoute"]);
-var base_url = "http://localhost:8083/"
+var host = window.location.host; 
+host = host.split(":")[0]
+var base_url =  window.location.protocol + "//" +host+":8083/"
 
 app.run(function($rootScope, $location){
   //If the route change failed due to authentication error, redirect them out
