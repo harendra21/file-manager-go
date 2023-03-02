@@ -1,12 +1,12 @@
 <div ng-include="'./app/views/common/download.html'"></div>
-<div class="container-fluid" ng-controller="homeCtrl" ng-init="getFiles()">
+<div class="container-fluid" ng-controller="homeCtrl" ng-init="getFiles()"> <br>
 	<div class="row">
 		<div class="col">
 			{{ msg }}
 		</div>
 		<div class="col">
-			<button class="btn btn-success pull-right" ng-click="create('folder')">New Folder</button> &nbsp;
-			<button class="btn btn-success pull-right" ng-click="create('file')">New File</button> <br>
+			<button class="btn btn-success pull-right" ng-click="create('folder')">New Folder</button>
+			<button class="btn btn-success pull-right" ng-click="create('file')">New File</button>
 		</div>
 	</div>
 	{{ parent }}
@@ -72,7 +72,7 @@
 			</div>
 			<div class="modal-body">
 				<input type="text" class="form-control" ng-model="name">
-				<button class="btn btn-primary" ng-click="doCreate(name,type)">Create</button>
+				<button class="btn btn-primary pull-right" ng-click="doCreate(name,type)">Create</button>
 			</div>
 		</div>
 	</div>
