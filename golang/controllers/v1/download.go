@@ -9,15 +9,7 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"path/filepath"
 )
-
-type Files struct {
-	Name  string `json:"name"`
-	IsDir bool   `json:"is_dir"`
-	Type  string `json:"type"`
-	Size  int64  `json:"size"`
-}
 
 type DownloadController struct {
 	controllers.AppController
@@ -26,78 +18,6 @@ type DownloadController struct {
 type downloadFileRequest struct {
 	Url  string `json:"url"`
 	Name string `json:"name"`
-}
-
-func (ctrl *DownloadController) AllFiles() {
-	var parent string = ctrl.GetString("p")
-
-	var dir string = "./data/" + parent + "/"
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		ctrl.ThrowError(200, err.Error())
-	}
-	var files []Files
-	for _, e := range entries {
-		var file Files
-		file.Name = e.Name()
-		file.IsDir = e.IsDir()
-		if !e.IsDir() {
-			openfile, err := os.Open(dir + e.Name())
-			if err != nil {
-				ctrl.ThrowError(200, err.Error())
-			}
-			defer openfile.Close()
-			contentType, err := ctrl.GetFileContentType(openfile)
-			file.Type = contentType
-
-			fi, err := openfile.Stat()
-			if err != nil {
-				ctrl.ThrowError(200, err.Error())
-			}
-			file.Size = fi.Size()
-
-		} else {
-			size, err := ctrl.DirSize(dir)
-			if err != nil {
-				ctrl.ThrowError(200, err.Error())
-			}
-			file.Size = size
-		}
-		files = append(files, file)
-	}
-	ctrl.Response(files)
-
-}
-func (ctrl *DownloadController) DirSize(path string) (int64, error) {
-	var size int64
-	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			size += info.Size()
-		}
-		return err
-	})
-	return size, err
-}
-func (ctrl *DownloadController) GetFileContentType(ouput *os.File) (string, error) {
-
-	// to sniff the content type only the first
-	// 512 bytes are used.
-
-	buf := make([]byte, 512)
-
-	_, err := ouput.Read(buf)
-
-	if err != nil {
-		return "", err
-	}
-
-	// the function that actually does the trick
-	contentType := http.DetectContentType(buf)
-
-	return contentType, nil
 }
 
 func (ctrl *DownloadController) DownloadFiles() {

@@ -12,6 +12,7 @@ services:
       replicas: 1
     volumes:
       - ./frontend:/var/www/html
+      - /var/www/html/node_modules
   app:
     build:
       context: .

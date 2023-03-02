@@ -19,9 +19,17 @@ func init() {
 	// init namespace
 	nsv1 := beego.NewNamespace("/api/v1",
 		beego.NSNamespace("/download",
-			// get all sites
 			beego.NSRouter("/", &v1.DownloadController{}, "post:DownloadFiles"),
-			beego.NSRouter("/files", &v1.DownloadController{}, "get:AllFiles"),
+		),
+		beego.NSNamespace("/file",
+			beego.NSRouter("/", &v1.FileController{}, "get:AllFiles"),
+			beego.NSRouter("/create", &v1.FileController{}, "get:Create"),
+			beego.NSRouter("/move", &v1.FileController{}, "get:MoveRename"),
+			beego.NSRouter("/copy", &v1.FileController{}, "get:Copy"),
+			beego.NSRouter("/delete", &v1.FileController{}, "get:Delete"),
+			beego.NSRouter("/rename", &v1.FileController{}, "get:MoveRename"),
+			beego.NSRouter("/zip", &v1.FileController{}, "get:Zip"),
+			beego.NSRouter("/unzip", &v1.FileController{}, "get:Unzip"),
 		),
 	)
 

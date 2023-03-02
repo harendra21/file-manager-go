@@ -1,11 +1,22 @@
 <div ng-include="'./app/views/common/download.html'"></div>
 <div class="container-fluid" ng-controller="homeCtrl" ng-init="getFiles()">
-	{{ msg }}
-
+	<div class="row">
+		<div class="col">
+			{{ msg }}
+		</div>
+		<div class="col">
+			<button class="btn btn-success pull-right" ng-click="create('folder')">New Folder</button> &nbsp;
+			<button class="btn btn-success pull-right" ng-click="create('file')">New File</button> <br>
+		</div>
+	</div>
+	{{ parent }}
 	<div class="table-responsive">
 		<table class="table">
 			<tbody>
-				<tr ng-repeat="file in files">
+				<tr>
+					<td ng-dblclick="goUp('file')">Up</td>
+				</tr>
+				<tr ng-if="files.length" ng-repeat="file in files">
 					<td>
 						<a ng-if="file.is_dir == true" href="/#!/?p={{ parent+file.name }}">{{ file.name }}</a>
 	  					<a ng-if="file.is_dir == false">{{ file.name }}</a>
@@ -17,11 +28,66 @@
 						{{ (file.size/(1024*1024)).toFixed(2)+" MB" }}
 					</td>
 					<td>
-						<button class="btn btn-sm btn-danger">D</button>
-						<button class="btn btn-sm btn-primary">M</button>
+						<button class="btn btn-sm btn-danger" ng-click="delete(parent+file.name)"><i class="ion-trash-a"></i></button>
+						<button class="btn btn-sm btn-primary" ng-click="movecopy(parent,file.name,'move')"><i class="ion-arrow-right-c"></i></button>
+						<button class="btn btn-sm btn-success" ng-click="movecopy(parent,file.name,'copy')"><i class="ion-ios-copy"></i></button>
+						<button class="btn btn-sm btn-secondary" ng-click="rename(file.name)"><i class="ion-edit"></i></button>
+						<button ng-if="file.is_dir == true" class="btn btn-sm btn-secondary" ng-click="zip(file.name)"><i class="ion-ios-box"></i></button>
+						<button ng-if="file.type == 'application/zip'" class="btn btn-sm btn-secondary" ng-click="unzip(file.name)"><i class="ion-arrow-expand"></i></button>
+						<button ng-if="file.is_dir == false && file.type != 'application/zip'" class="btn btn-sm btn-secondary"><i class="ion-eye"></i></button>
 					</td>
+				</tr>
+				<tr ng-if="!files.length">
+					<td>No Files</td>
 				</tr>
 			</tbody>
 		</table>
+	</div>
+</div>
+
+
+<div id="movecopylDlg" class="modal fade" tabindex="-1" role="dialog" ng-controller="homeCtrl">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h4 class="modal-title">Select folder to  {{ scp.action }}</h4>
+			</div>
+			<div class="modal-body">
+				<div ng-if="parent != '/'" ng-dblclick="goUp('dir')">Up</div>
+				<ul>
+					<li ng-repeat="dir in dirs" ng-if="dir.is_dir == true && dir.name != moveFolderName" ng-click="selectFolder(dir.name)" ng-class="{'selectedDir' : dir.name == selectedFolder}" ng-dblclick="openDir(parent+'/'+dir.name)">{{ dir.name }}</li>
+				</ul>
+
+				<button ng-click="doMove(parent)" class="btn btn-primary pull-right">Move</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="createDlg" class="modal fade" tabindex="-1" role="dialog" ng-controller="homeCtrl">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h4 class="modal-title">Folder or file name</h4>
+			</div>
+			<div class="modal-body">
+				<input type="text" class="form-control" ng-model="name">
+				<button class="btn btn-primary" ng-click="doCreate(name,type)">Create</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="renameDlg" class="modal fade" tabindex="-1" role="dialog" ng-controller="homeCtrl">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h4 class="modal-title">Rename</h4>
+			</div>
+			<div class="modal-body">
+				<input type="text" class="form-control" ng-model="name">
+				<button class="btn btn-primary" ng-click="doRename(name)">Rename</button>
+			</div>
+		</div>
 	</div>
 </div>

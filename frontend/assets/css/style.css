@@ -31,3 +31,6 @@ body {
 .pull-right{
   float:right;
 }
+.selectedDir{
+  background-color: #04d2fbc2;
+}
