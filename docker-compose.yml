@@ -25,4 +25,4 @@ services:
       - "8083:8080"
     volumes:
       - ./golang:/goapp
-      - ./data:/goapp/data
+      - ${DATA_DIR}:/goapp/data
