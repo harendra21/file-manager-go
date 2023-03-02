@@ -1,32 +1,12 @@
-app.controller("homeCtrl", ['$rootScope','$http','SweetAlert2','$location', function ($rootScope,$http,SweetAlert2,$location){
+app.controller("homeCtrl", ['$rootScope','$http','SweetAlert2','$location','fileService', function ($rootScope,$http,SweetAlert2,$location,fileService){
   var scope = $rootScope
   scope.parent = $location.search().p;
 
 	scope.getFiles = () => {
-    if (scope.parent == undefined) {
-      var parent = '/'
-    }else{
-      var parent = scope.parent+"/"
-    }
+    var parent = ''
+    scope.parent == undefined ? (parent = '/') : (parent = scope.parent+"/")
     scope.parent = scope.cleanPath(parent)
-    scope.msg = "Fetching files"
-    $http({
-      method: 'GET',
-      url: base_url+'api/v1/file?p='+parent
-    }).then(function successCallback(response) {
-        if(response.statusText == "OK"){
-          if (response.data.status == 1) {
-            scope.msg = "File Fetched"
-            scope.files = response.data.data
-          }else{
-             scope.msg = response.data.error_msg
-          }
-        }else{
-          scope.msg = response.statusText
-        }
-    },function errorCallback(response) {
-      scope.msg = response
-    });
+    fileService.fetchDir(scope.parent, scope, 'files')
   }
 
   scope.delete = (path) => {
@@ -40,40 +20,8 @@ app.controller("homeCtrl", ['$rootScope','$http','SweetAlert2','$location', func
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-
         scope.msg = "Deleting"
-        $http({
-          method: 'GET',
-          url: base_url+'api/v1/file/delete?source='+path
-        }).then(function successCallback(response) {
-            if(response.statusText == "OK"){
-              if (response.data.status == 1) {
-                scope.msg = "Deleted"
-                scope.getFiles()
-              }else{
-                 scope.msg = response.data.error_msg
-                  Swal.fire(
-                    'Not Deleted!',
-                    scope.msg,
-                    'error'
-                  )
-              }
-            }else{
-              scope.msg = response.statusText
-                Swal.fire(
-                  'Not Deleted!',
-                  scope.msg,
-                  'error'
-                )
-            }
-        },function errorCallback(response) {
-          scope.msg = response
-          Swal.fire(
-            'Not Deleted!',
-            scope.msg,
-            'error'
-          )
-        });
+        fileService.delete(path, scope)
       }
     })
   }
@@ -82,30 +30,11 @@ app.controller("homeCtrl", ['$rootScope','$http','SweetAlert2','$location', func
     scope.moveFolderName = folder
     scope.currentDir = scope.cleanPath(parent+'/'+folder);
     scope.action = action
-
-    $http({
-      method: 'GET',
-      url: base_url+'api/v1/file?p='+parent
-    }).then(function successCallback(response) {
-        if(response.statusText == "OK"){
-          if (response.data.status == 1) {
-            scope.msg = "File Fetched"
-            scope.dirs = response.data.data
-           
-            var dlgElem = angular.element("#movecopylDlg");
-            if (dlgElem) {
-              dlgElem.modal("show");
-            }
-            
-          }else{
-             scope.msg = response.data.error_msg
-          }
-        }else{
-          scope.msg = response.statusText
-        }
-    },function errorCallback(response) {
-      scope.msg = response
-    });
+    var dlgElem = angular.element("#movecopylDlg");
+    if (dlgElem) {
+      dlgElem.modal("show");
+    }
+    fileService.fetchDir(parent, scope, 'dirs')
   }
 
   scope.selectFolder = (folder) => {
@@ -114,23 +43,7 @@ app.controller("homeCtrl", ['$rootScope','$http','SweetAlert2','$location', func
 
   scope.openDir = (folder) => {
     scope.parent = scope.cleanPath(folder)
-    $http({
-      method: 'GET',
-      url: base_url+'api/v1/file?p='+scope.parent
-    }).then(function successCallback(response) {
-        if(response.statusText == "OK"){
-          if (response.data.status == 1) {
-            scope.msg = "File Fetched"
-            scope.dirs = response.data.data   
-          }else{
-             scope.msg = response.data.error_msg
-          }
-        }else{
-          scope.msg = response.statusText
-        }
-    },function errorCallback(response) {
-      scope.msg = response
-    });
+    fileService.fetchDir(scope.parent, scope, 'dirs')
   }
 
   scope.goUp = (type) => {
@@ -152,167 +65,57 @@ app.controller("homeCtrl", ['$rootScope','$http','SweetAlert2','$location', func
   }
 
   scope.doMove = (parentDir) => {
-    $http({
-      method: 'GET',
-      url: base_url+'api/v1/file/'+scope.action+'?source='+scope.cleanPath(scope.currentDir)+'&destination='+scope.cleanPath(parentDir)+'/'+scope.moveFolderName
-    }).then(function successCallback(response) {
-        if(response.statusText == "OK"){
-          if (response.data.status == 1) {
-            scope.msg = "File "+scope.action
-            setTimeout(() => {
-              var dlgElem = angular.element("#movecopylDlg");
-              if (dlgElem) {
-                dlgElem.modal("hide");
-              }
-              scope.getFiles()
-            },100)
-            
-          }else{
-             scope.msg = response.data.error_msg
-          }
-        }else{
-          scope.msg = response.statusText
-        }
-    },function errorCallback(response) {
-      scope.msg = response
-    });
+    var source = scope.cleanPath(scope.currentDir)
+    var destination = scope.cleanPath(parentDir+'/'+scope.moveFolderName)
+    fileService.movecopy(scope.action, source, destination, scope)
+    var dlgElem = angular.element("#movecopylDlg");
+    if (dlgElem) { dlgElem.modal("hide"); }
   }
 
   scope.create = (type) => {
     scope.msg = "Creating"
     scope.type = type
     var dlgElem = angular.element("#createDlg");
-    if (dlgElem) {
-      dlgElem.modal("show");
-    }
+    if (dlgElem) { dlgElem.modal("show"); }
   }
 
   scope.doCreate = (name, type) => {
-
-    if (scope.parent == undefined) {
-      var parent = '/'
-    }else{
-      var parent = scope.parent+"/"
-    }
-
-    $http({
-      method: 'GET',
-      url: base_url+'api/v1/file/create?parent='+parent+'&name='+name+'&type='+type
-    }).then(function successCallback(response) {
-        if(response.statusText == "OK"){
-          if (response.data.status == 1) {
-            scope.msg = "Created successfully"
-            setTimeout(() => {
-              var dlgElem = angular.element("#createDlg");
-              if (dlgElem) {
-                dlgElem.modal("hide");
-              }
-              scope.getFiles()
-            },100)
-            
-          }else{
-             scope.msg = response.data.error_msg
-          }
-        }else{
-          scope.msg = response.statusText
-        }
-    },function errorCallback(response) {
-      scope.msg = response
-    });
+    var parent = ''
+    scope.parent == undefined ? (parent = '/') : (parent = scope.parent+"/")
+    fileService.create(parent, name, type, scope)
+    var dlgElem = angular.element("#movecopylDlg");
+    if (dlgElem) { dlgElem.modal("hide"); }
   }
 
   scope.cleanPath = (path) => {
-    path = path.replace('//','/')
-    return path
+    return path.replace('//','/')
   }
 
   scope.rename = (file) => {
-    console.log(scope.parent)
     scope.msg = "Renaming"
     scope.name = file
     var dlgElem = angular.element("#renameDlg");
-    if (dlgElem) {
-      dlgElem.modal("show");
-    }
+    if (dlgElem) { dlgElem.modal("show"); }
   }
 
   scope.doRename = (newname) => {
-    $http({
-      method: 'GET',
-      url: base_url+'api/v1/file/move?source='+scope.cleanPath(scope.parent)+'/'+scope.name+'&destination='+scope.cleanPath(scope.parent)+'/'+newname
-    }).then(function successCallback(response) {
-        if(response.statusText == "OK"){
-          if (response.data.status == 1) {
-            scope.msg = "File Renamed successfully"
-            setTimeout(() => {
-              var dlgElem = angular.element("#renameDlg");
-              if (dlgElem) {
-                dlgElem.modal("hide");
-              }
-              scope.getFiles()
-            },100)
-            
-          }else{
-             scope.msg = response.data.error_msg
-          }
-        }else{
-          scope.msg = response.statusText
-        }
-    },function errorCallback(response) {
-      scope.msg = response
-    });
+    var source = scope.cleanPath(scope.parent+'/'+scope.name)
+    var destination = scope.cleanPath(scope.parent+'/'+newname)
+    fileService.movecopy('move', source, destination, scope)
+    var dlgElem = angular.element("#renameDlg");
+    if (dlgElem) { dlgElem.modal("hide"); }
   }
 
   scope.zip = (filename) => {
-    $http({
-      method: 'GET',
-      url: base_url+'api/v1/file/zip?source='+scope.cleanPath(scope.parent)+'/'+filename+'&destination='+scope.cleanPath(scope.parent)+'/'+filename+'.zip'
-    }).then(function successCallback(response) {
-        if(response.statusText == "OK"){
-          if (response.data.status == 1) {
-            scope.msg = "File zipped successfully"
-            Swal.fire(
-              'Success',
-              scope.msg,
-              'success'
-            )
-            scope.getFiles()
-            
-          }else{
-             scope.msg = response.data.error_msg
-          }
-        }else{
-          scope.msg = response.statusText
-        }
-    },function errorCallback(response) {
-      scope.msg = response
-    });
-  }
-  scope.unzip = (filename) => {
-    var newfilename = filename.replace('.zip','')
-    $http({
-      method: 'GET',
-      url: base_url+'api/v1/file/unzip?source='+scope.cleanPath(scope.parent)+'/'+filename+'&destination='+scope.cleanPath(scope.parent)+'/'+newfilename
-    }).then(function successCallback(response) {
-        if(response.statusText == "OK"){
-          if (response.data.status == 1) {
-            scope.msg = "File unipped successfully"
-            Swal.fire(
-              'Success',
-              scope.msg,
-              'success'
-            )
-            scope.getFiles()
-            
-          }else{
-             scope.msg = response.data.error_msg
-          }
-        }else{
-          scope.msg = response.statusText
-        }
-    },function errorCallback(response) {
-      scope.msg = response
-    });
+    var source = scope.cleanPath(scope.parent+'/'+filename)
+    var destination = scope.cleanPath(scope.parent+'/'+filename+'.zip')
+    fileService.zipUnzip('zip', source, destination, scope)
   }
 
+  scope.unzip = (filename) => {
+    var newfilename = filename.replace('.zip','')
+    var source = scope.cleanPath(scope.parent+'/'+filename)
+    var destination = scope.cleanPath(scope.parent+'/'+newfilename)
+    fileService.zipUnzip('unzip', source, destination, scope)
+  }
 }]);

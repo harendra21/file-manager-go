@@ -21,17 +21,24 @@ type downloadFileRequest struct {
 }
 
 func (ctrl *DownloadController) DownloadFiles() {
+	var parent string = ctrl.GetString("p")
+	if parent == "" {
+		ctrl.ThrowError(200, "Parent is required")
+		return
+	}
 
 	var fileReq downloadFileRequest
 	json.Unmarshal(ctrl.Ctx.Input.RequestBody, &fileReq)
 
 	getUrl := fileReq.Url
 	if getUrl == "" {
-		ctrl.ThrowError(1003, "Url is required")
+		ctrl.ThrowError(200, "Url is required")
+		return
 	}
 	u, err := url.ParseRequestURI(getUrl)
 	if err != nil {
 		ctrl.ThrowError(200, err.Error())
+		return
 	}
 
 	fileName := fileReq.Name
@@ -41,21 +48,22 @@ func (ctrl *DownloadController) DownloadFiles() {
 	}
 	if fileName == "" || fileName == "." {
 		ctrl.ThrowError(200, "Invalid url")
+		return
 	}
 
-	err = ctrl.downloadFile(fileName, getUrl)
+	err = ctrl.downloadFile(parent, fileName, getUrl)
 	if err != nil {
-		fmt.Println(err)
 		ctrl.ThrowError(200, err.Error())
+		return
 	}
 
 	ctrl.Response(u)
 }
 
-func (ctrl *DownloadController) downloadFile(filepath string, url string) (err error) {
+func (ctrl *DownloadController) downloadFile(parent, filepath, url string) (err error) {
 
 	// Create the file
-	out, err := os.Create("./data/" + filepath)
+	out, err := os.Create("./data/" + parent + filepath)
 	if err != nil {
 		return err
 	}
